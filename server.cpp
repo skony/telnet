@@ -8,9 +8,31 @@
 #include <strings.h>
 #include <arpa/inet.h>
 
+void doprocessing (int sock)
+{
+  int n;
+  char buffer[256];
+
+  bzero(buffer,256);
+
+  n = read(sock,buffer,255);
+  if (n < 0)
+  {
+      perror("ERROR reading from socket");
+      exit(1);
+  }
+  printf("Here is the message: %s\n",buffer);
+  n = write(sock,"I got your message",18);
+  if (n < 0) 
+  {
+      perror("ERROR writing to socket");
+      exit(1);
+  }
+}
+
 int main( int argc, char *argv[] )
 {
-	int sockfd, newsockfd, portno, clilen;
+	int sockfd, newsockfd, portno, clilen, pid;
   char buffer[256];
   struct sockaddr_in serv_addr, cli_addr;
   int  n;
@@ -36,15 +58,24 @@ int main( int argc, char *argv[] )
 	listen(sockfd,5);
   clilen = sizeof(cli_addr);
 
-  newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t*) &clilen);
+  while(1)
+  {
 
-	bzero(buffer,256);
-  n = read( newsockfd,buffer,255 );
+    newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t*) &clilen);
+    pid = fork();
 
-	printf("Here is the message: %s\n",buffer);
-
-	n = write(newsockfd,"I got your message",18);
-
+    if (pid == 0)  
+    {
+      /* This is the client process */
+      close(sockfd);
+      doprocessing(newsockfd);
+      exit(0);
+    }
+    else
+    {
+      close(newsockfd);
+    }
+  }
 	return 0;
 
 }

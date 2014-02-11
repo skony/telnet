@@ -5,7 +5,7 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
+#include <stringlocalhost.h>
 #include <arpa/inet.h>
 
 int main( int argc, char *argv[] )
