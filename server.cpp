@@ -8,7 +8,7 @@
 #include <strings.h>
 #include <arpa/inet.h>
 
-int main()
+int main( int argc, char *argv[] )
 {
 	int sockfd, newsockfd, portno, clilen;
   char buffer[256];
@@ -21,6 +21,7 @@ int main()
   bzero((char *) &serv_addr, sizeof(serv_addr));
   portno = 5001;
   serv_addr.sin_family = AF_INET;
+  //inet_aton (server, &sck_addr.sin_addr);
   serv_addr.sin_addr.s_addr = INADDR_ANY;
   serv_addr.sin_port = htons(portno);
 
