@@ -5,7 +5,7 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stringlocalhost.h>
+#include <string.h>
 #include <arpa/inet.h>
 
 int main( int argc, char *argv[] )
@@ -30,16 +30,20 @@ int main( int argc, char *argv[] )
     perror("ERROR connecting");
     exit(1);
   }	
+	
+	while(1)
+	{
+		printf("Please enter the message: ");
+		bzero(buffer,256);
+		fgets(buffer,255,stdin);
 
-	printf("Please enter the message: ");
-  bzero(buffer,256);
-  fgets(buffer,255,stdin);
+		n = write(sockfd,buffer,strlen(buffer));
 
-	n = write(sockfd,buffer,strlen(buffer));
+		bzero(buffer,256);
+		n = read(sockfd,buffer,255);
 
-	bzero(buffer,256);
-  n = read(sockfd,buffer,255);
+		printf("%s\n",buffer);
+	}
 
-	printf("%s\n",buffer);
   return 0;
 }

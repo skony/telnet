@@ -68,7 +68,8 @@ int main( int argc, char *argv[] )
     {
       /* This is the client process */
       close(sockfd);
-      doprocessing(newsockfd);
+      while(1)
+        doprocessing(newsockfd);
       exit(0);
     }
     else
