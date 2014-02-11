@@ -35,7 +35,7 @@ int main()
 	listen(sockfd,5);
   clilen = sizeof(cli_addr);
 
-  newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t*) &clilen);
+  newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 
 	bzero(buffer,256);
   n = read( newsockfd,buffer,255 );
