@@ -5,8 +5,59 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <strings.h>
+#include <string.h>
 #include <arpa/inet.h>
+
+typedef struct User
+{
+  sockaddr_in user_addr;
+  char* pass;
+} User;
+
+User users[10];
+int users_count = 0;
+struct sockaddr_in serv_addr, cli_addr;
+int sockfd, newsockfd, portno, clilen;
+
+void addHost()
+{
+  int n;
+  char buffer[256];
+  char buffer2[256];
+
+  while(1)
+  {
+    char msg[50] = "Please write password";
+    n = write(newsockfd, msg, strlen(msg));
+    n = read(newsockfd,buffer,255);
+    strcpy(msg, "Please write password again");
+    write(newsockfd, msg, strlen(msg));
+    read(newsockfd,buffer2,255);
+
+    printf("debug: bufer  %s\n",buffer);
+    printf("debug: bufer2 %s\n",buffer2);
+
+    if(strcmp(buffer, buffer2) == 0)
+    {
+      printf("add host OK:\n");
+      break;
+    }
+    else
+    {
+      printf("passwords dont match\n");
+    }
+  }
+}
+
+void compare( const char req[])
+{
+  printf("debug: compare func\n");
+  if(strcmp(req, "/host\n") == 0)
+  {
+    printf("debug: addhost\n");
+    addHost();
+  }
+}
 
 void doprocessing (int sock)
 {
@@ -15,14 +66,15 @@ void doprocessing (int sock)
 
   bzero(buffer,256);
 
-  n = read(sock,buffer,255);
+  n = read(newsockfd,buffer,255);
   if (n < 0)
   {
       perror("ERROR reading from socket");
       exit(1);
   }
   printf("Here is the message: %s\n",buffer);
-  n = write(sock,"I got your message",18);
+  compare(buffer);
+  n = write(newsockfd,"I got your message",18);
   if (n < 0) 
   {
       perror("ERROR writing to socket");
@@ -32,9 +84,8 @@ void doprocessing (int sock)
 
 int main( int argc, char *argv[] )
 {
-	int sockfd, newsockfd, portno, clilen, pid;
+	int pid;
   char buffer[256];
-  struct sockaddr_in serv_addr, cli_addr;
   int  n;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -68,7 +119,8 @@ int main( int argc, char *argv[] )
     {
       /* This is the client process */
       close(sockfd);
-      doprocessing(newsockfd);
+      while(1)
+        doprocessing(newsockfd);
       exit(0);
     }
     else
