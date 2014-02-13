@@ -8,6 +8,9 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+char server_ip[20] = "127.0.0.1";
+char port[10] = "5001";
+
 int main( int argc, char *argv[] )
 {
 	int sockfd, portno, n;
@@ -16,14 +19,16 @@ int main( int argc, char *argv[] )
 
   char buffer[256];
 
-	portno = atoi(argv[2]);
+	portno = atoi(port);
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	server = gethostbyname(argv[1]);
+	server = gethostbyname(server_ip);
 
 	bzero((char *) &serv_addr, sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
   bcopy((char *)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
   serv_addr.sin_port = htons(portno);
+	int* optval;
+	setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
 
 	if (connect(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
   {

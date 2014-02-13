@@ -8,6 +8,9 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+char server_ip[20] = "127.0.0.1";
+char server_port[10] = "5001";
+
 int main( int argc, char *argv[] )
 {
 	int sockfd, portno, n;
@@ -16,9 +19,9 @@ int main( int argc, char *argv[] )
 
   char buffer[256];
 
-	portno = atoi(argv[2]);
+	portno = atoi(server_port);
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	server = gethostbyname(argv[1]);
+	server = gethostbyname(server_ip);
 
 	bzero((char *) &serv_addr, sizeof(serv_addr));
   serv_addr.sin_family = AF_INET;
