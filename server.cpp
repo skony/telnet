@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 typedef struct User
 {
@@ -17,7 +18,7 @@ typedef struct User
 User users[10];
 int users_count = 0;
 struct sockaddr_in serv_addr, cli_addr;
-int sockfd, newsockfd, portno, clilen;
+int sockfd, newsockfd, portno = 5001, clilen;
 
 void addHost()
 {
@@ -49,7 +50,10 @@ void addHost()
       strcpy(users[users_count].pass, buffer);
       printf("debug: adding5\n");
       users_count = users_count + 1;
-      printf("add host OK:\n");
+      printf("add host OK: %d\n",  users[users_count].user_addr.sin_addr.s_addr);
+			bzero(msg,50);
+			strcpy(msg, "Now you are hosting");
+			write(newsockfd, msg, strlen(msg));
       break;
     }
     else
@@ -59,37 +63,61 @@ void addHost()
   }
 }
 
-void compare( const char req[])
+int connectToHost(char host[], struct sockaddr_in &dest_addr, bool &connection)
 {
-  printf("debug: compare func\n");
-  if(strcmp(req, "/host\n") == 0)
-  {
-    printf("debug: addhost\n");
-    addHost();
-  }
+	printf("debug: host0\n");
+	struct in_addr host_addr;
+	inet_aton(host, &host_addr);
+	int sock_dest	= socket(AF_INET, SOCK_STREAM, 0);
+
+	for(int i=0; i<9; i++)
+	{
+		if(users[i].user_addr.sin_addr.s_addr == host_addr.s_addr)
+		{
+			printf("debug: host1\n");
+			dest_addr.sin_family = AF_INET;
+  		dest_addr.sin_addr.s_addr = host_addr.s_addr;
+  		dest_addr.sin_port = htons(portno);
+			if (connect(sock_dest, (struct sockaddr *) &dest_addr,sizeof(dest_addr)) < 0) 
+  		{
+				perror("ERROR connecting");
+				return -1;
+			}
+			else
+			{
+				printf("debug: host2\n");
+				connection = true;
+				return sock_dest;
+			}	
+		}
+	}
 }
 
 void doprocessing (int sock)
 {
   int n;
   char buffer[256];
+	bool connected = false;
+	struct sockaddr_in dest_addr;
+	int sock_dest;
 
-  bzero(buffer,256);
+	while(1)
+	{
+		bzero(buffer,256);
 
-  n = read(newsockfd,buffer,255);
-  if (n < 0)
-  {
-      perror("ERROR reading from socket");
-      exit(1);
-  }
-  printf("Here is the message: %s\n",buffer);
-  compare(buffer);
-  n = write(newsockfd,"I got your message",18);
-  if (n < 0) 
-  {
-      perror("ERROR writing to socket");
-      exit(1);
-  }
+		read(newsockfd,buffer,255);
+		printf("Here is the message: %s\n",buffer);
+		if(strcmp(buffer, "-host") == 0)
+		{
+		  printf("debug: addhost\n");
+		  addHost();
+		}
+		else if(!connected)
+		{
+			sock_dest = connectToHost(buffer, dest_addr, connected);
+		}
+		//write(newsockfd,"I got your message",18);
+	}
 }
 
 int main( int argc, char *argv[] )
@@ -131,8 +159,7 @@ int main( int argc, char *argv[] )
     {
       /* This is the client process */
       close(sockfd);
-      while(1)
-        doprocessing(newsockfd);
+      doprocessing(newsockfd);
       exit(0);
     }
     else

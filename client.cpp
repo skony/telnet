@@ -34,20 +34,61 @@ int main( int argc, char *argv[] )
   {
     perror("ERROR connecting");
     exit(1);
-  }	
-	
-	while(1)
+  }
+
+	if(strcmp(argv[1], "-host") == 0)
 	{
-		printf("Please enter the message: ");
 		bzero(buffer,256);
-		fgets(buffer,255,stdin);
+		write(sockfd,argv[1],strlen(argv[1]));
 
-		n = write(sockfd,buffer,strlen(buffer));
+		while(1)
+		{
+			bzero(buffer,256);
+			read(sockfd,buffer,255);
+			printf("%s\n",buffer);
 
+			if(strcmp(buffer,"Now you are hosting") == 0)
+			{
+				while(1)
+				{
+					bzero(buffer,256);
+					read(sockfd,buffer,255);
+					printf("%s\n",buffer);
+				}					
+			}
+
+			bzero(buffer,256);
+			fgets(buffer,255,stdin);
+			write(sockfd,buffer,strlen(buffer));
+			bzero(buffer,256);
+			read(sockfd,buffer,255);
+			printf("%s\n",buffer);
+			bzero(buffer,256);
+			fgets(buffer,255,stdin);
+			write(sockfd,buffer,strlen(buffer));
+		}
+	}	
+	else
+	{
+		write(sockfd,argv[1],strlen(argv[1]));
 		bzero(buffer,256);
-		n = read(sockfd,buffer,255);
+		read(sockfd,buffer,255);	
 
-		printf("%s\n",buffer);
+		if(strcmp(buffer, "OK") == 0)
+		{
+			while(1)
+			{
+				bzero(buffer,256);
+				fgets(buffer,255,stdin);
+
+				n = write(sockfd,buffer,strlen(buffer));
+
+				bzero(buffer,256);
+				n = read(sockfd,buffer,255);
+
+				printf("%s\n",buffer);
+			}
+		}
 	}
 
   return 0;

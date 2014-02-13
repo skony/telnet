@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 
 char server_ip[20] = "127.0.0.1";
-char port[10] = "5001";
+char server_port[10] = "5001";
 
 int main( int argc, char *argv[] )
 {
@@ -19,7 +19,7 @@ int main( int argc, char *argv[] )
 
   char buffer[256];
 
-	portno = atoi(port);
+	portno = atoi(server_port);
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	server = gethostbyname(server_ip);
 
@@ -34,7 +34,40 @@ int main( int argc, char *argv[] )
   {
     perror("ERROR connecting");
     exit(1);
-  }	
+  }
+
+	if(strcmp(argv[1], "-host") == 0)
+	{
+		bzero(buffer,256);
+		write(sockfd,argv[1],strlen(argv[1]));
+
+		while(1)
+		{
+			bzero(buffer,256);
+			read(sockfd,buffer,255);
+			printf("%s\n",buffer);
+
+			if(strcmp(buffer,"Now you are hosting") == 0)
+			{
+				while(1)
+				{
+					bzero(buffer,256);
+					read(sockfd,buffer,255);
+					printf("%s\n",buffer);
+				}					
+			}
+
+			bzero(buffer,256);
+			fgets(buffer,255,stdin);
+			write(sockfd,buffer,strlen(buffer));
+			bzero(buffer,256);
+			read(sockfd,buffer,255);
+			printf("%s\n",buffer);
+			bzero(buffer,256);
+			fgets(buffer,255,stdin);
+			write(sockfd,buffer,strlen(buffer));
+		}
+	}	
 	
 	while(1)
 	{
