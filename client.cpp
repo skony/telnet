@@ -24,6 +24,8 @@ int main( int argc, char *argv[] )
   serv_addr.sin_family = AF_INET;
   bcopy((char *)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
   serv_addr.sin_port = htons(portno);
+	int* optval;
+	setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
 
 	if (connect(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
   {

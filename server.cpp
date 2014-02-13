@@ -10,8 +10,8 @@
 
 typedef struct User
 {
-  sockaddr_in user_addr;
-  char* pass;
+  struct sockaddr_in user_addr;
+  char pass[];
 } User;
 
 User users[10];
@@ -39,6 +39,16 @@ void addHost()
 
     if(strcmp(buffer, buffer2) == 0)
     {
+      printf("debug: adding1\n");
+      users[users_count].user_addr.sin_family = cli_addr.sin_family;
+      printf("debug: adding2\n");
+      users[users_count].user_addr.sin_addr = cli_addr.sin_addr;
+      printf("debug: adding3\n");
+      users[users_count].user_addr.sin_port = cli_addr.sin_port;
+      printf("debug: adding4\n");
+      strcpy(users[users_count].pass, buffer);
+      printf("debug: adding5\n");
+      users_count = users_count + 1;
       printf("add host OK:\n");
       break;
     }
@@ -88,7 +98,6 @@ int main( int argc, char *argv[] )
   char buffer[256];
   int  n;
 
-  setsockopt(SO_REUSEADDR);
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	/* Initialize socket structure */
@@ -100,6 +109,8 @@ int main( int argc, char *argv[] )
   serv_addr.sin_port = htons(portno);
 
 	/* Now bind the host address using bind() call.*/
+  int* optval;
+  setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
   if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
   {
 		perror("ERROR on binding");
