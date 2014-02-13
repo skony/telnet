@@ -41,10 +41,10 @@ void addHost(int newsockfd, unsigned int s_addr)
     char msg[50] = "Please write password";
     write(newsockfd, msg, strlen(msg));
 		bzero(buffer, 256);
+		bzero(buffer2, 256);
     read(newsockfd,buffer,255);
     strcpy(msg, "Please write password again");
     write(newsockfd, msg, strlen(msg));
-		bzero(buffer, 256);
     read(newsockfd,buffer2,255);
 
     printf("debug: bufer  %s\n",buffer);
@@ -132,6 +132,13 @@ void* doprocessing (void *arg)
 		else if(!connected)
 		{
 			sock_dest = connectToHost(buffer, dest_addr, connected);
+			bzero(buffer, 256);
+			buffer = "OK";
+			write(newsockfd, buffer, strlen(buffer));		
+		}
+		else
+		{
+			write(newsockfd,"I got your message",18);
 		}
 		//write(newsockfd,"I got your message",18);
 	}

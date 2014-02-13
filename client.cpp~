@@ -68,19 +68,27 @@ int main( int argc, char *argv[] )
 			write(sockfd,buffer,strlen(buffer));
 		}
 	}	
-	
-	while(1)
+	else
 	{
-		printf("Please enter the message: ");
+		write(sockfd,argv[1],strlen(argv[1]));
 		bzero(buffer,256);
-		fgets(buffer,255,stdin);
+		read(sockfd,buffer,255);	
 
-		n = write(sockfd,buffer,strlen(buffer));
+		if(strcmp(buffer, "OK") == 0)
+		{
+			while(1)
+			{
+				bzero(buffer,256);
+				fgets(buffer,255,stdin);
 
-		bzero(buffer,256);
-		n = read(sockfd,buffer,255);
+				n = write(sockfd,buffer,strlen(buffer));
 
-		printf("%s\n",buffer);
+				bzero(buffer,256);
+				n = read(sockfd,buffer,255);
+
+				printf("%s\n",buffer);
+			}
+		}
 	}
 
   return 0;

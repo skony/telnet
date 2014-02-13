@@ -89,6 +89,11 @@ int main( int argc, char *argv[] )
 				printf("%s\n",buffer);
 			}
 		}
+		else
+		{
+			printf("connecting error\n");
+			return -1;
+		}
 	}
 
   return 0;

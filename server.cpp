@@ -132,6 +132,13 @@ void* doprocessing (void *arg)
 		else if(!connected)
 		{
 			sock_dest = connectToHost(buffer, dest_addr, connected);
+			bzero(buffer, 256);
+			strcpy(buffer, "OK");
+			write(newsockfd, buffer, strlen(buffer));		
+		}
+		else
+		{
+			write(newsockfd,"I got your message",18);
 		}
 		//write(newsockfd,"I got your message",18);
 	}
