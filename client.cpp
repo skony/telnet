@@ -14,7 +14,7 @@ char server_port[10] = "5001";
 void execute(char buffer[], char command[])
 {
 	FILE *fpipe;
-	bzero(buffer, 256);
+	bzero(buffer, 512);
 	char line[16];
 	strcpy(buffer, "");
 
@@ -92,7 +92,7 @@ int main( int argc, char *argv[] )
 				bzero(buffer,256);
 				listen(sockfd,3);
 				clilen = sizeof(cli_addr);
-				char buffer2[256];
+				char buffer2[512];
 
 				while(1)
 				{
@@ -104,9 +104,9 @@ int main( int argc, char *argv[] )
 						int len = strlen(buffer);
 						buffer[len - 1] = '\0';
 						printf("%s\n",buffer);
-						bzero(buffer2, 256);
+						bzero(buffer2, 512);
 						execute(buffer2, buffer);
-						write(newsockfd,buffer2,255);	
+						write(newsockfd,buffer2,511);	
 					}
 				}					
 			}
@@ -130,6 +130,7 @@ int main( int argc, char *argv[] )
 
 		if(strcmp(buffer, "OK") == 0)
 		{
+			char buffer3[512];
 			while(1)
 			{
 				bzero(buffer,256);
@@ -137,8 +138,8 @@ int main( int argc, char *argv[] )
 
 				n = write(sockfd,buffer,strlen(buffer));
 
-				bzero(buffer,256);
-				n = read(sockfd,buffer,255);
+				bzero(buffer3,512);
+				n = read(sockfd,buffer,511);
 
 				printf("%s\n",buffer);
 			}

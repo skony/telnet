@@ -83,13 +83,10 @@ int connectToHost(unsigned int host, struct sockaddr_in dest_addr, bool connecti
 
 	for(int i=0; i<9; i++)
 	{
-		printf("debug: host3 %d %d\n", i, host_addr.sin_addr.s_addr);
-		printf("debug: host4 %d %d\n", i, users[i].user_addr.sin_addr.s_addr);
 		if(users[i].user_addr.sin_addr.s_addr == host_addr.sin_addr.s_addr)
 		{
 			host_addr.sin_family = AF_INET;
   		host_addr.sin_port = htons(portno + i + 1);
-			printf("debug: host1 %d\n", portno + i + 1);
 			int* optval;
 			//setsockopt(sock_dest, 1, SO_REUSEADDR, &optval,4);
 			if (connect(sock_dest, (struct sockaddr *) &host_addr,sizeof(host_addr)) < 0) 
@@ -99,7 +96,6 @@ int connectToHost(unsigned int host, struct sockaddr_in dest_addr, bool connecti
 			}
 			else
 			{
-				printf("debug: host2\n");
 				connection = true;
 				return sock_dest;
 			}	
@@ -111,6 +107,7 @@ void* doprocessing (void *arg)
 {
   int n, sock_dest, newsockfd;
   char buffer[256];
+	char buffer2[512];
 	bool connected = false;
 	struct sockaddr_in dest_addr;
 	unsigned int s_addr;
@@ -143,9 +140,9 @@ void* doprocessing (void *arg)
 		else
 		{
 			write(sock_dest, buffer, strlen(buffer));
-			bzero(buffer,256);
-			read(sock_dest,buffer,255);
-			write(newsockfd, buffer, 255);
+			bzero(buffer2,512);
+			read(sock_dest,buffer2,511);
+			write(newsockfd, buffer2, 511);
 		}
 	}
 }
