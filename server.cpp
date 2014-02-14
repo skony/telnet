@@ -132,7 +132,8 @@ void* doprocessing (void *arg)
 		}
 		else if(!connected)
 		{
-			unsigned int host = 16777343;
+			unsigned int host = inet_addr(buffer);
+			//16777343;
 			sock_dest = connectToHost(host, dest_addr, &connected);
 			connected = true;
 			bzero(buffer, 256);
@@ -144,7 +145,7 @@ void* doprocessing (void *arg)
 			write(sock_dest, buffer, strlen(buffer));
 			bzero(buffer,256);
 			read(sock_dest,buffer,255);
-			printf("buffer: %s\n",buffer);
+			write(newsockfd, buffer, 255);
 		}
 	}
 }

@@ -16,7 +16,7 @@ void execute(char buffer[], char command[])
 	FILE *fpipe;
 	bzero(buffer, 256);
 	char line[16];
-	strcpy(buffer, " ");
+	strcpy(buffer, "");
 
 	if (0 == (fpipe = (FILE*)popen(command, "r")))
     {
@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
 						buffer[len - 1] = '\0';
 						printf("%s\n",buffer);
 						bzero(buffer2, 256);
-						execute(&buffer2, buffer);
+						execute(buffer2, buffer);
 						printf("loop: %s\n", buffer2);
 						write(newsockfd,buffer2,255);	
 					}

@@ -76,10 +76,8 @@ void addHost(int newsockfd, unsigned int s_addr)
 
 int connectToHost(unsigned int host, struct sockaddr_in dest_addr, bool connection)
 {
-	printf("debug: host0\n");
 	struct sockaddr_in host_addr;
 	host_addr.sin_addr.s_addr = host;
-	printf("debug: host0\n");
 	int sock_dest	= socket(AF_INET, SOCK_STREAM, 0);
 	
 
@@ -89,9 +87,7 @@ int connectToHost(unsigned int host, struct sockaddr_in dest_addr, bool connecti
 		printf("debug: host4 %d %d\n", i, users[i].user_addr.sin_addr.s_addr);
 		if(users[i].user_addr.sin_addr.s_addr == host_addr.sin_addr.s_addr)
 		{
-			printf("debug: host1\n");
 			host_addr.sin_family = AF_INET;
-			printf("debug: host1\n");
   		host_addr.sin_port = htons(portno + i + 1);
 			printf("debug: host1 %d\n", portno + i + 1);
 			int* optval;
@@ -136,7 +132,8 @@ void* doprocessing (void *arg)
 		}
 		else if(!connected)
 		{
-			unsigned int host = 16777343;
+			unsigned int host = inet_addr("buffer");
+			//16777343;
 			sock_dest = connectToHost(host, dest_addr, &connected);
 			connected = true;
 			bzero(buffer, 256);
@@ -148,6 +145,7 @@ void* doprocessing (void *arg)
 			write(sock_dest, buffer, strlen(buffer));
 			bzero(buffer,256);
 			read(sock_dest,buffer,255);
+			write(newsockfd, buffer, 255);
 		}
 	}
 }

