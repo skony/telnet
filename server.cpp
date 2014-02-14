@@ -138,6 +138,7 @@ void* doprocessing (void *arg)
 		{
 			unsigned int host = 16777343;
 			sock_dest = connectToHost(host, dest_addr, &connected);
+			connected = true;
 			bzero(buffer, 256);
 			strcpy(buffer, "OK");
 			write(newsockfd, buffer, strlen(buffer));		

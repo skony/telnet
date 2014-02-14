@@ -59,7 +59,7 @@ void addHost(int newsockfd, unsigned int s_addr)
 			strcpy(msg, "Now you are hosting");
 			write(newsockfd, msg, strlen(msg));printf("debug: YOLO\n");
 			bzero(msg, 50);printf("debug: YOLO\n");
-			char* client_port = "    ";printf("debug: YOLO\n");
+			char client_port[15];printf("debug: YOLO\n");
 			printf("kurwaa %d %d \n", portno, users_count);
 			printf("kurwa %s\n", client_port);
 			sprintf(client_port, "%d", portno + users_count);printf("debug: YOLO\n");
@@ -138,6 +138,7 @@ void* doprocessing (void *arg)
 		{
 			unsigned int host = 16777343;
 			sock_dest = connectToHost(host, dest_addr, &connected);
+			connected = true
 			bzero(buffer, 256);
 			strcpy(buffer, "OK");
 			write(newsockfd, buffer, strlen(buffer));		
