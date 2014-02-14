@@ -54,17 +54,17 @@ void addHost(int newsockfd, unsigned int s_addr)
       users[users_count].user_addr.sin_port = htons(portno + users_count + 1);
       strcpy(users[users_count].pass, buffer);
       printf("add host OK: %d\n",  users[users_count].user_addr.sin_addr.s_addr);
-			users_count = users_count + 1; 	printf("debug: YOLO\n");
+			users_count = users_count + 1; 	
 			bzero(msg,50);
 			strcpy(msg, "Now you are hosting");
-			write(newsockfd, msg, strlen(msg));printf("debug: YOLO\n");
-			bzero(msg, 50);printf("debug: YOLO\n");
-			char client_port[15];printf("debug: YOLO\n");
-			printf("kurwaa %d %d \n", portno, users_count);
-			printf("kurwa %s\n", client_port);
-			sprintf(client_port, "%d", portno + users_count);printf("debug: YOLO\n");
-			strcpy(msg, client_port);printf("debug: YOLO\n");
-			write(newsockfd, msg, strlen(msg)); printf("debug: YOLO\n");
+			write(newsockfd, msg, strlen(msg));
+			bzero(msg, 50);
+			char client_port[15];
+			sprintf(client_port, "%d", portno + users_count);
+			strcpy(msg, client_port);
+			bzero(buffer, 256);
+			read(newsockfd, buffer, 255);
+			write(newsockfd, msg, strlen(msg)); 
       break;
     }
     else
@@ -76,10 +76,8 @@ void addHost(int newsockfd, unsigned int s_addr)
 
 int connectToHost(unsigned int host, struct sockaddr_in dest_addr, bool connection)
 {
-	printf("debug: host0\n");
 	struct sockaddr_in host_addr;
 	host_addr.sin_addr.s_addr = host;
-	printf("debug: host0\n");
 	int sock_dest	= socket(AF_INET, SOCK_STREAM, 0);
 	
 
@@ -89,9 +87,7 @@ int connectToHost(unsigned int host, struct sockaddr_in dest_addr, bool connecti
 		printf("debug: host4 %d %d\n", i, users[i].user_addr.sin_addr.s_addr);
 		if(users[i].user_addr.sin_addr.s_addr == host_addr.sin_addr.s_addr)
 		{
-			printf("debug: host1\n");
 			host_addr.sin_family = AF_INET;
-			printf("debug: host1\n");
   		host_addr.sin_port = htons(portno + i + 1);
 			printf("debug: host1 %d\n", portno + i + 1);
 			int* optval;
@@ -148,6 +144,7 @@ void* doprocessing (void *arg)
 			write(sock_dest, buffer, strlen(buffer));
 			bzero(buffer,256);
 			read(sock_dest,buffer,255);
+			printf("buffer: %s\n",buffer);
 		}
 	}
 }
