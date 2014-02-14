@@ -28,7 +28,7 @@ int main( int argc, char *argv[] )
   bcopy((char *)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
   serv_addr.sin_port = htons(portno);
 	int* optval;
-	setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
+	//setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
 
 	if (connect(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
   {
@@ -49,10 +49,31 @@ int main( int argc, char *argv[] )
 
 			if(strcmp(buffer,"Now you are hosting") == 0)
 			{
+				bzero(buffer,256);
+				read(sockfd,buffer,255);
+				int my_port = atoi(buffer);
+				close(sockfd);
+				struct sockaddr_in cli_addr, my_addr;
+				my_addr.sin_family = AF_INET;
+  			my_addr.sin_addr.s_addr = INADDR_ANY;
+  			my_addr.sin_port = htons(my_port);
+				sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+				if (bind(sockfd, (struct sockaddr *) &my_addr, sizeof(my_addr)) < 0)
+				{
+					perror("ERROR on binding");
+				 	exit(1);
+				}
+
+				int clilen, newsockfd;
+				bzero(buffer,256);
+				listen(sockfd,3);
+				clilen = sizeof(cli_addr);
+
 				while(1)
 				{
-					bzero(buffer,256);
-					read(sockfd,buffer,255);
+					newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t*) &clilen);
+					read(newsockfd,buffer,255);
 					printf("%s\n",buffer);
 				}					
 			}

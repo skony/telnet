@@ -47,25 +47,24 @@ void addHost(int newsockfd, unsigned int s_addr)
     write(newsockfd, msg, strlen(msg));
     read(newsockfd,buffer2,255);
 
-    printf("debug: bufer  %s\n",buffer);
-    printf("debug: bufer2 %s\n",buffer2);
-
     if(strcmp(buffer, buffer2) == 0)
     {
-      printf("debug: adding1\n");
       users[users_count].user_addr.sin_family = AF_INET;
-      printf("debug: adding2\n");
       users[users_count].user_addr.sin_addr.s_addr = s_addr;
-      printf("debug: adding3\n");
-      users[users_count].user_addr.sin_port = htons(portno);
-      printf("debug: adding4\n");
+      users[users_count].user_addr.sin_port = htons(portno + users_count + 1);
       strcpy(users[users_count].pass, buffer);
-      printf("debug: adding5\n");
-      users_count = users_count + 1;
       printf("add host OK: %d\n",  users[users_count].user_addr.sin_addr.s_addr);
+			users_count = users_count + 1; 	printf("debug: YOLO\n");
 			bzero(msg,50);
 			strcpy(msg, "Now you are hosting");
-			write(newsockfd, msg, strlen(msg));
+			write(newsockfd, msg, strlen(msg));printf("debug: YOLO\n");
+			bzero(msg, 50);printf("debug: YOLO\n");
+			char* client_port = "    ";printf("debug: YOLO\n");
+			printf("kurwaa %d %d \n", portno, users_count);
+			printf("kurwa %s\n", client_port);
+			sprintf(client_port, "%d", portno + users_count);printf("debug: YOLO\n");
+			strcpy(msg, client_port);printf("debug: YOLO\n");
+			write(newsockfd, msg, strlen(msg)); printf("debug: YOLO\n");
       break;
     }
     else
@@ -75,22 +74,29 @@ void addHost(int newsockfd, unsigned int s_addr)
   }
 }
 
-int connectToHost(char host[], struct sockaddr_in &dest_addr, bool &connection)
+int connectToHost(unsigned int host, struct sockaddr_in dest_addr, bool connection)
 {
 	printf("debug: host0\n");
-	struct in_addr host_addr;
-	inet_aton(host, &host_addr);
+	struct sockaddr_in host_addr;
+	host_addr.sin_addr.s_addr = host;
+	printf("debug: host0\n");
 	int sock_dest	= socket(AF_INET, SOCK_STREAM, 0);
+	
 
 	for(int i=0; i<9; i++)
 	{
-		if(users[i].user_addr.sin_addr.s_addr == host_addr.s_addr)
+		printf("debug: host3 %d %d\n", i, host_addr.sin_addr.s_addr);
+		printf("debug: host4 %d %d\n", i, users[i].user_addr.sin_addr.s_addr);
+		if(users[i].user_addr.sin_addr.s_addr == host_addr.sin_addr.s_addr)
 		{
 			printf("debug: host1\n");
-			dest_addr.sin_family = AF_INET;
-  		dest_addr.sin_addr.s_addr = host_addr.s_addr;
-  		dest_addr.sin_port = htons(portno);
-			if (connect(sock_dest, (struct sockaddr *) &dest_addr,sizeof(dest_addr)) < 0) 
+			host_addr.sin_family = AF_INET;
+			printf("debug: host1\n");
+  		host_addr.sin_port = htons(portno + i + 1);
+			printf("debug: host1 %d\n", portno + i + 1);
+			int* optval;
+			//setsockopt(sock_dest, 1, SO_REUSEADDR, &optval,4);
+			if (connect(sock_dest, (struct sockaddr *) &host_addr,sizeof(host_addr)) < 0) 
   		{
 				perror("ERROR connecting");
 				return -1;
@@ -121,47 +127,45 @@ void* doprocessing (void *arg)
 	while(1)
 	{
 		bzero(buffer,256);
-
 		read(newsockfd,buffer,255);
 		printf("Here is the message: %s\n",buffer);
 		if(strcmp(buffer, "-host") == 0)
 		{
-		  printf("debug: addhost\n");
 		  addHost(newsockfd, s_addr);
+			pthread_exit((void*) 0);
 		}
 		else if(!connected)
 		{
-			sock_dest = connectToHost(buffer, dest_addr, connected);
+			unsigned int host = 16777343;
+			sock_dest = connectToHost(host, dest_addr, &connected);
 			bzero(buffer, 256);
-			buffer = "OK";
+			strcpy(buffer, "OK");
 			write(newsockfd, buffer, strlen(buffer));		
 		}
 		else
 		{
-			write(newsockfd,"I got your message",18);
+			write(sock_dest, buffer, strlen(buffer));
+			bzero(buffer,256);
+			read(sock_dest,buffer,255);
 		}
-		//write(newsockfd,"I got your message",18);
 	}
 }
 
 int main( int argc, char *argv[] )
 {
-	int pid, t;
+	int pid, t, n, newsockfd, clilen;
   char buffer[256];
-  int  n, newsockfd, clilen;
 	struct sockaddr_in cli_addr;
+	void *status;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-	/* Initialize socket structure */
   bzero((char *) &serv_addr, sizeof(serv_addr));
-  portno = 5001;
   serv_addr.sin_family = AF_INET;
-  //inet_aton (server, &sck_addr.sin_addr);
+
   serv_addr.sin_addr.s_addr = INADDR_ANY;
   serv_addr.sin_port = htons(portno);
 
-	/* Now bind the host address using bind() call.*/
   int* optval;
   setsockopt(sockfd, 1, SO_REUSEADDR, &optval,4);
   if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
@@ -170,7 +174,6 @@ int main( int argc, char *argv[] )
    	exit(1);
   }
 
-	/* start listen */
 	listen(sockfd,5);
   clilen = sizeof(cli_addr);
 
