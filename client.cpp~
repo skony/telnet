@@ -11,11 +11,12 @@
 char server_ip[20] = "127.0.0.1";
 char server_port[10] = "5001";
 
-char* execute(char command[])
+void execute(char buffer[], char command[])
 {
 	FILE *fpipe;
-	char buffer[256];
-	char line[10];
+	bzero(buffer, 256);
+	char line[16];
+	strcpy(buffer, " ");
 
 	if (0 == (fpipe = (FILE*)popen(command, "r")))
     {
@@ -25,14 +26,14 @@ char* execute(char command[])
 
 	 while (fread(line, sizeof line, 1, fpipe))
     {
-        printf("%s", line);
+        printf("line: %s\n", line);
 				strcat(buffer, line);
+				printf("bufer: %s\n", buffer);
     }
 
 	pclose(fpipe);
 	
 	printf("return %s\n", buffer);
-	return buffer;
 }
 
 int main( int argc, char *argv[] )
@@ -108,9 +109,9 @@ int main( int argc, char *argv[] )
 						buffer[len - 1] = '\0';
 						printf("%s\n",buffer);
 						bzero(buffer2, 256);
-						strcpy(buffer2, execute(buffer));
-						write(newsockfd,buffer2,255);
-						
+						execute(&buffer2, buffer);
+						printf("loop: %s\n", buffer2);
+						write(newsockfd,buffer2,255);	
 					}
 				}					
 			}
