@@ -14,7 +14,7 @@ example of use:
 
 User A console
 ```
-piotrek@piotrek-desktop:~/Kodzenie/telnet/telnet$ g++ server.cpp -lpthread -o server && ./server
+$ g++ server.cpp -lpthread -o server && ./server
 Here is the message: -host
 add host OK: 16777343
 Here is the message: 127.0.0.1
@@ -26,7 +26,7 @@ Here is the message: ls
 ```
 User B console
 ```
-piotrek@piotrek-desktop:~/Kodzenie/telnet/telnet$ ./client -host
+$ ./client -host
 Please write password
 pass
 Please write password again
@@ -39,7 +39,7 @@ ls
 
 User C console
 ```
-piotrek@piotrek-desktop:~/Kodzenie/telnet/telnet$ ./client 127.0.0.1
+$ ./client 127.0.0.1
 ls
 client
 client.cpp
